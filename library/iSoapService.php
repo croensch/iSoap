@@ -1,9 +1,6 @@
 <?php
 /**
  * improved SOAP Service
- * 
- * @todo unwrap literal arrays
- * @todo tolerate missing parameters
  */
 class iSoapService
 {	
@@ -19,7 +16,7 @@ class iSoapService
 	
 	/**
 	 * @param mixed $object
-	 * @param boolean $wrapped
+	 * @param iSoapConfig $config
 	 */
 	public function __construct($object, iSoapConfig $config)
 	{
@@ -40,6 +37,11 @@ class iSoapService
 		}
 		
 		try {
+			/**
+			 * @todo support functions
+ 			 * @todo unwrap literal arrays
+			 * @todo tolerate missing parameters
+			 */
 			$return = $method->invokeArgs($this->_object, $arguments);
 		} catch (SoapFault $soapfault) {
 			throw $soapfault;

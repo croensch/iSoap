@@ -10,40 +10,22 @@ class iSoapServer extends SoapServer
 	protected $_config;
 	
 	/**
-	 * options
-	 *  - wsdl_binding_style
-	 *  - wsdl_body_use
+	 * @see SoapServer::SoapServer()
+	 * 
+	 * default options
+	 *  - soap_version			SOAP_1_1 or SOAP_1_2 (default)
+	 *  - send_errors			integer (0 recommended)
+	 * 
+	 * extended options
+	 *  - wsdl_binding_style	SOAP_RPC or SOAP_DOCUMENT (default)
+	 *  - wsdl_body_use			SOAP_ENCODED or SOAP_LITERAL (default)
+	 *  - wrapped				boolean (true recommended)
 	 * 
 	 * @param string $wsdl
 	 * @param array $options
 	 */
 	public function __construct($wsdl = null, array $options = array())
-	{
-		if (null === $wsdl) {
-			$schema = "http";
-	        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-	            $schema = 'https';
-	        }
-			if(isset($_SERVER['HTTP_HOST'])) {
-	            $host = $_SERVER['HTTP_HOST'];
-	        } else {
-	            $host = $_SERVER['SERVER_NAME'];
-	        }
-			if (isset($_SERVER['HTTP_X_REWRITE_URL'])) { // check this first so IIS will catch
-	            $requestUri = $_SERVER['HTTP_X_REWRITE_URL'];
-	        } elseif (isset($_SERVER['REQUEST_URI'])) {
-	            $requestUri = $_SERVER['REQUEST_URI'];
-	        } elseif (isset($_SERVER['ORIG_PATH_INFO'])) { // IIS 5.0, PHP as CGI
-	            $requestUri = $_SERVER['ORIG_PATH_INFO'];
-	        } else {
-	            $requestUri = $_SERVER['SCRIPT_NAME'];
-	        }
-	        if( ($pos = strpos($requestUri, "?")) !== false) {
-	            $requestUri = substr($requestUri, 0, $pos);
-	        }
-	        $wsdl = $schema . '://' . $host . $requestUri;
-		}
-		
+	{		
 		$this->_config = new iSoapConfig;
 		
 		if (isset($options['soap_version'])){
@@ -84,7 +66,7 @@ class iSoapServer extends SoapServer
 	public function addFunction($functions)
 	{
 		/**
-		 * @todo Functions
+		 * @todo support functions
 		 */
 		parent::addFunction($functions);
 	}
@@ -101,18 +83,20 @@ class iSoapServer extends SoapServer
 	public function fault($code, $string, $actor = null, $details = null, $name = null)
 	{
 		/**
-		 * @todo SOAP_1_2
+		 * @todo improve SOAP_1_2
 		 */
 		parent::fault($code, $string, $actor, $details, $name);
 	}
 	
 	/**
 	 * @see SoapServer::getFunctions()
+	 * 
+	 * @return array
 	 */
 	public function getFunctions()
 	{
 		/**
-		 * @todo Functions
+		 * @todo support functions
 		 */
 		return parent::getFunctions();
 	}
