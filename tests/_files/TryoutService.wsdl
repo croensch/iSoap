@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap12/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:try="http://localhost/tryout/"
+	targetNamespace="http://localhost/tryout/"
+	name="TryoutService">
+	<types>
+		<xsd:schema targetNamespace="http://localhost/tryout/" elementFormDefault="qualified">
+			<xsd:element name="hello">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="sign" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="helloResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="helloResult" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="throwFault">
+				<xsd:complexType />
+			</xsd:element>
+			<xsd:element name="throwException">
+				<xsd:complexType />
+			</xsd:element>
+			<xsd:element name="triggerError">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="level" type="xsd:int" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="triggerErrorResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="triggerErrorResult" type="xsd:int" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:schema>
+	</types>
+	<portType name="TryoutPort">
+		<operation name="hello">
+			<documentation>Hello!?</documentation>
+			<input message="try:helloIn" />
+			<output message="try:helloOut" />
+		</operation>
+		<operation name="throwFault">
+			<documentation>Crash</documentation>
+			<input message="try:throwFaultIn" />
+		</operation>
+		<operation name="throwException">
+			<documentation>Crash</documentation>
+			<input message="try:throwExceptionIn" />
+		</operation>
+		<operation name="triggerError">
+			<documentation>Crash</documentation>
+			<input message="try:triggerErrorIn" />
+			<output message="try:triggerErrorOut" />
+		</operation>
+	</portType>
+	<binding name="TryoutBinding" type="try:TryoutPort">
+		<soap:binding style="document"	transport="http://schemas.xmlsoap.org/soap/http" />
+		<operation name="hello">
+			<soap:operation soapAction="http://localhost/tryout/#hello" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+		</operation>
+		<operation name="throwFault">
+			<soap:operation soapAction="http://localhost/tryout/#throwFault" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+		</operation>
+		<operation name="throwException">
+			<soap:operation soapAction="http://localhost/tryout/#throwException" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+		</operation>
+		<operation name="triggerError">
+			<soap:operation soapAction="http://localhost/tryout/#triggerError" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+		</operation>
+	</binding>
+	<service name="TryoutService">
+		<port name="TryoutPort" binding="try:TryoutBinding">
+			<soap:address location="http://localhost/tryout/" />
+		</port>
+	</service>
+	<message name="helloIn">
+		<part name="parameters" element="try:hello" />
+	</message>
+	<message name="helloOut">
+		<part name="parameters" element="try:helloResponse" />
+	</message>
+	<message name="throwFaultIn">
+		<part name="parameters" element="try:throwFault" />
+	</message>
+	<message name="throwExceptionIn">
+		<part name="parameters" element="try:throwException" />
+	</message>
+	<message name="triggerErrorIn">
+		<part name="parameters" element="try:triggerError" />
+	</message>
+	<message name="triggerErrorOut">
+		<part name="parameters" element="try:triggerErrorResponse" />
+	</message>
+</definitions>

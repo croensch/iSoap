@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope" xmlns:ns1="http://localhost/tryout/">
+   <env:Body>
+      <ns1:helloResponse>
+         <ns1:helloResult>Hello!</ns1:helloResult>
+      </ns1:helloResponse>
+   </env:Body>
+</env:Envelope>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit>
+	<testsuites>
+	  <testsuite name="Server Test Suite">
+	    <file>./iSoapServerTest.php</file>
+	  </testsuite>
+	</testsuites>
+	<php>
+  		<includePath>../library</includePath>
+  	</php>
+</phpunit>
