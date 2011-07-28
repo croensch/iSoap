@@ -3,11 +3,16 @@
  * improved SoapServer
  */
 class iSoapServer extends SoapServer
-{
+{	
 	/**
 	 * @var iSoapConfig
 	 */
 	protected $_config;
+	
+	/**
+	 * @var iSoapService
+	 */
+	protected $_service;
 	
 	/**
 	 * @see SoapServer::SoapServer()
@@ -26,7 +31,7 @@ class iSoapServer extends SoapServer
 	 */
 	public function __construct($wsdl = null, array $options = array())
 	{		
-		$this->_config = new iSoapConfig;
+		$this->_config 	= new iSoapConfig;
 		
 		if (isset($options['soap_version'])){
 			$this->_config->soap_version = $options['soap_version'];
@@ -55,7 +60,11 @@ class iSoapServer extends SoapServer
 			unset($options['wrapped']);
 		}
 		
-		parent::__construct($wsdl, $options);
+		$this->_service = new iSoapService($this->_config);
+				
+		parent::__construct($wsdl, $options);	
+		
+		parent::setObject($this->_service);
 	}
 	
 	/**
@@ -65,10 +74,20 @@ class iSoapServer extends SoapServer
 	 */
 	public function addFunction($functions)
 	{
-		/**
-		 * @todo support functions
-		 */
-		parent::addFunction($functions);
+		if (is_array($functions)) {
+			foreach ($functions as $function){
+				$this->addFunction($function);
+			}
+		}
+		
+		if (is_string($functions)) {
+			if (function_exists($functions)) {
+				$this->_service->functions[] = $functions;
+				$this->_service->type = iSoapService::TYPE_FUNCTIONS;
+			} else {
+				trigger_error(__METHOD__."(): Tried to add a non existant function '$functions'", E_USER_WARNING);
+			}
+		}
 	}
 	
 	/**
@@ -95,37 +114,50 @@ class iSoapServer extends SoapServer
 	 */
 	public function getFunctions()
 	{
-		/**
-		 * @todo support functions
-		 */
-		return parent::getFunctions();
+		if (iSoapService::TYPE_FUNCTIONS === $this->_service->type) {
+			return $this->_service->functions;
+		}
+		
+		if (iSoapService::TYPE_CLASS === $this->_service->type) {
+			return get_class_methods($this->_service->class_name);
+		}
+		
+		if (iSoapService::TYPE_OBJECT === $this->_service->type) {
+			return get_class_methods($this->_service->object);
+		}
+		
+		return array();
 	}
 	
 	/**
 	 * @see SoapServer::setClass()
 	 * 
 	 * @param string $class_name
-	 * @param array $args
+	 * @param string $args
 	 */
 	public function setClass($class_name, $args = null)
 	{
-		if (null === $args) {
-			$object = new $class_name;
-		} else {
-			$reflectionClass = new ReflectionClass($class_name);
-			$object = $reflectionClass->newInstanceArgs($args);
+		if (is_string($class_name) && strlen($class_name)){
+			if (class_exists($class_name)) {
+				$this->_service->class_name = $class_name;
+				$this->_service->class_args = $args;
+				$this->_service->type = iSoapService::TYPE_CLASS;
+			} else {
+				trigger_error(__METHOD__."(): Tried to set a non existant class ($class_name)", E_USER_WARNING);
+			}
 		}
-		$this->setObject($object);
 	}
 	
 	/**
 	 * @see SoapServer::setObject()
 	 * 
-	 * @param mixed $object
+	 * @param object $object
 	 */
 	public function setObject($object)
 	{
-		$object = new iSoapService($object, $this->_config);
-		parent::setObject($object);
+		if (is_object($object)) {
+			$this->_service->object = $object;
+			$this->_service->type = iSoapService::TYPE_OBJECT;
+		}
 	}
 }

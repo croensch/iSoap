@@ -3,25 +3,59 @@
  * improved SOAP Service
  */
 class iSoapService
-{	
-	/**
-	 * @var mixed
-	 */
-	protected $_object;
-	
+{
 	/**
 	 * @var iSoapConfig
 	 */
-	protected $_config;
+	public $config;
 	
 	/**
-	 * @param mixed $object
-	 * @param iSoapConfig $config
+	 * @var array
 	 */
-	public function __construct($object, iSoapConfig $config)
+	public $functions;
+	
+	/**
+	 * @var string
+	 */
+	public $class_name;
+	
+	/**
+	 * @var string
+	 */
+	public $class_args;
+	
+	/**
+	 * @var mixed
+	 */
+	public $object;
+	
+	/**
+	 * @var integer
+	 */
+	public $type;
+	
+	/**
+	 * @var integer
+	 */
+	const TYPE_CLASS = 1;
+	
+	/**
+	 * @var integer
+	 */
+	const TYPE_FUNCTIONS = 2;
+	
+	/**
+	 * @var integer
+	 */
+	const TYPE_OBJECT = 3;
+	
+	/**
+	 * @param iSoapConfig $config
+	 * @param integer $type
+	 */
+	public function __construct(iSoapConfig $config)
 	{
-		$this->_object = $object;
-		$this->_config = $config;
+		$this->config = $config;
 	}
 	
 	/**
@@ -30,36 +64,61 @@ class iSoapService
 	 */
 	public function __call($name, array $arguments)
 	{
-		$method = new ReflectionMethod($this->_object, $name);
+		if (SOAP_1_2 === $this->config->soap_version ) {
+			$faultcode = 'env:Receiver';
+		} else {
+			$faultcode = 'SOAP-ENV:Server';
+		}
 		
-		if (SOAP_DOCUMENT === $this->_config->wsdl_binding_style) {
+		if (SOAP_DOCUMENT === $this->config->wsdl_binding_style) {
 			$arguments = (array) $arguments[0];
 		}
 		
 		try {
-			/**
-			 * @todo support functions
- 			 * @todo unwrap literal arrays
-			 * @todo tolerate missing parameters
-			 */
-			$return = $method->invokeArgs($this->_object, $arguments);
+			switch ($this->type){
+				case self::TYPE_FUNCTIONS:
+					$reflectionFunction = new ReflectionFunction($name);
+					break;
+				case self::TYPE_CLASS:
+					$reflectionClass = new ReflectionClass($this->class_name);
+					$reflectionMethod = $reflectionClass->getMethod($name);
+					break;
+				case self::TYPE_OBJECT:
+					$reflectionObject = new ReflectionObject($this->object);
+					$reflectionMethod = $reflectionObject->getMethod($name);
+					unset($reflectionObject);
+					break;
+			}
+		} catch(ReflectionException $e) {
+			throw new SoapFault($faultcode, "Function '$name' doesn't exist");
+		}
+		
+		$return = null;
+		
+		try {
+			switch ($this->type){
+				case self::TYPE_FUNCTIONS:
+					$return = $reflectionFunction->invokeArgs($arguments);
+					break;
+				case self::TYPE_CLASS:
+					$this->object = $reflectionClass->newInstanceArgs($this->class_args);
+				case self::TYPE_OBJECT:
+					$return = $reflectionMethod->invokeArgs($this->object, $arguments);
+					break;
+			}
 		} catch (SoapFault $soapfault) {
 			throw $soapfault;
 		} catch (Exception $exception) {
-			if (SOAP_1_2 === $this->_config->soap_version ) {
-				$faultcode = 'env:Receiver';
-			} else {
-				$faultcode = 'SOAP-ENV:Server';
-			}		
-			if ($this->_config->send_errors) {
+			if ($this->config->send_errors) {
 				$faultstring = (string) $exception;
 			} else {
 				$faultstring = 'Internal Error';
 			}
+			trigger_error("Uncaught $exception", E_USER_ERROR);
 			throw new SoapFault($faultcode, $faultstring);
 		}
 		
-		if (SOAP_RPC === $this->_config->wsdl_binding_style || false === $this->_config->wrapped) {
+		if (SOAP_RPC === $this->config->wsdl_binding_style || false === $this->config->wrapped) {
 			return $return;
 		}
 		

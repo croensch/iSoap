@@ -1,4 +1,8 @@
 <?php
+function hello($sign)
+{
+	return "Hello$sign";
+}
 class TryoutService
 {
 	/**

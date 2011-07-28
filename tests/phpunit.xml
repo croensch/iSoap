@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit>
-	<testsuites>
-	  <testsuite name="Server Test Suite">
-	    <file>./iSoapServerTest.php</file>
-	  </testsuite>
-	</testsuites>
 	<php>
   		<includePath>../library</includePath>
   	</php>
+	<testsuites>
+	  <testsuite name="Server Test Suite">
+	  	<directory suffix=".php">./</directory>
+	  </testsuite>
+	</testsuites>
+  	<filter>
+  		<whitelist addUncoveredFilesFromWhitelist="true">
+  			<directory suffix=".php">../library</directory>
+  		</whitelist>
+  	</filter>
+  	<logging>
+  		<log type="coverage-html" target="../docs/coverage" charset="UTF-8" />
+  	</logging>
 </phpunit>
