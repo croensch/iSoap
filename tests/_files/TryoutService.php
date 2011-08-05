@@ -3,6 +3,10 @@ function hello($sign)
 {
 	return "Hello$sign";
 }
+function abc($a, $b, $c = 'C')
+{
+	return "$a, $b, $c";
+}
 class TryoutService
 {
 	/**
@@ -22,6 +26,19 @@ class TryoutService
 	public function hello($sign)
 	{
 		return "$this->text$sign";
+	}
+	
+	/**
+	 * A, B, C
+	 * 
+	 * @param string $a
+	 * @param string $b
+	 * @param string $c
+	 * @return
+	 */
+	public function abc($a, $b, $c = 'C')
+	{
+		return "$a, $b, $c";
 	}
 	
 	/**

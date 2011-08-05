@@ -22,6 +22,22 @@
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
+			<xsd:element name="abc">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="a" type="xsd:string" />
+						<xsd:element name="b" type="xsd:string" />
+						<xsd:element name="c" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="abcResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="abcResult" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
 			<xsd:element name="throwFault">
 				<xsd:complexType />
 			</xsd:element>
@@ -50,6 +66,11 @@
 			<input message="try:helloIn" />
 			<output message="try:helloOut" />
 		</operation>
+		<operation name="abc">
+			<documentation>A, B, C</documentation>
+			<input message="try:abcIn" />
+			<output message="try:abcOut" />
+		</operation>
 		<operation name="throwFault">
 			<documentation>Crash</documentation>
 			<input message="try:throwFaultIn" />
@@ -68,6 +89,15 @@
 		<soap:binding style="document"	transport="http://schemas.xmlsoap.org/soap/http" />
 		<operation name="hello">
 			<soap:operation soapAction="http://localhost/tryout/#hello" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+		</operation>
+		<operation name="abc">
+			<soap:operation soapAction="http://localhost/tryout/#abc" />
 			<input>
 				<soap:body use="literal" />
 			</input>
@@ -107,6 +137,12 @@
 	</message>
 	<message name="helloOut">
 		<part name="parameters" element="try:helloResponse" />
+	</message>
+	<message name="abcIn">
+		<part name="parameters" element="try:abc" />
+	</message>
+	<message name="abcOut">
+		<part name="parameters" element="try:abcResponse" />
 	</message>
 	<message name="throwFaultIn">
 		<part name="parameters" element="try:throwFault" />

@@ -31,8 +31,9 @@ class iSoapServerTest extends PHPUnit_Framework_TestCase
 	
 	public function testAddFunction()
 	{
-		$this->server->addFunction('hello');
+		$this->server->addFunction(array('hello', 'abc'));
 		$this->serve('hello');
+		$this->serve('abc');
 	}
 	
 	public function testAddFunctionBogus()
@@ -81,6 +82,7 @@ class iSoapServerTest extends PHPUnit_Framework_TestCase
 	{
 		$this->server->setClass('TryoutService', array('Hello'));
 		$this->serve('hello');
+		$this->serve('abc');
 	}
 		
 	public function testSetClassBogus()
@@ -98,6 +100,7 @@ class iSoapServerTest extends PHPUnit_Framework_TestCase
 	{
 		$this->server->setObject(new TryoutService('Hello'));
 		$this->serve('hello');
+		$this->serve('abc');
 	}
 	
 	/**

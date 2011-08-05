@@ -70,10 +70,6 @@ class iSoapService
 			$faultcode = 'SOAP-ENV:Server';
 		}
 		
-		if (SOAP_DOCUMENT === $this->config->wsdl_binding_style) {
-			$arguments = (array) $arguments[0];
-		}
-		
 		try {
 			switch ($this->type){
 				case self::TYPE_FUNCTIONS:
@@ -91,6 +87,30 @@ class iSoapService
 			}
 		} catch(ReflectionException $e) {
 			throw new SoapFault($faultcode, "Function '$name' doesn't exist");
+		}
+		
+		if (SOAP_DOCUMENT === $this->config->wsdl_binding_style) {
+			switch ($this->type){
+				case self::TYPE_FUNCTIONS:
+					$reflectionParameters = $reflectionFunction->getParameters();
+					break;
+				case self::TYPE_CLASS:
+				case self::TYPE_OBJECT:
+					$reflectionParameters = $reflectionMethod->getParameters();
+					break;
+			}
+			$arguments[0] = (array) $arguments[0];
+			foreach ($reflectionParameters as $reflectionParameter) {
+				$key = $reflectionParameter->getName();
+				if( isset($arguments[0][$key]) ){
+					$arguments[$key] = $arguments[0][$key];
+					unset($arguments[0][$key]);
+				} else {
+					$arguments[$key] = null;
+				}
+			}
+			unset($reflectionParameters, $reflectionParameter);
+			unset($arguments[0]);
 		}
 		
 		$return = null;
@@ -125,6 +145,7 @@ class iSoapService
 		$result = $name . 'Result';
 		$response = new stdClass();
 		$response->$result = $return;
+		
 		return $response;
 	}
 }
