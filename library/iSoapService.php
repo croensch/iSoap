@@ -35,6 +35,11 @@ class iSoapService
 	public $type;
 	
 	/**
+	 * @var iSoapFault
+	 */
+	public $lastFault;
+	
+	/**
 	 * @var integer
 	 */
 	const TYPE_CLASS = 1;
@@ -121,28 +126,40 @@ class iSoapService
 					$return = $reflectionFunction->invokeArgs($arguments);
 					break;
 				case self::TYPE_CLASS:
-					$this->object = $reflectionClass->newInstanceArgs($this->class_args);
+					if( null === $this->class_args ){
+						$this->object = $reflectionClass->newInstance();
+					} else {
+						$this->object = $reflectionClass->newInstanceArgs($this->class_args);
+					}
 				case self::TYPE_OBJECT:
 					$return = $reflectionMethod->invokeArgs($this->object, $arguments);
 					break;
 			}
 		} catch (SoapFault $soapfault) {
-			throw $soapfault;
 		} catch (Exception $exception) {
 			if ($this->config->send_errors) {
 				$faultstring = (string) $exception;
 			} else {
 				$faultstring = 'Internal Error';
 			}
-			trigger_error("Uncaught $exception", E_USER_ERROR);
-			throw new SoapFault($faultcode, $faultstring);
+			trigger_error(__METHOD__."(): caught $exception", E_USER_NOTICE);
+			if (SOAP_1_2 === $this->config->soap_version ) {
+				$soapfault = new iSoapFault($faultcode, $faultstring);
+			} else {
+				$soapfault = new SoapFault($faultcode, $faultstring);
+			}
 		}
 		
-		if (SOAP_RPC === $this->config->wsdl_binding_style || false === $this->config->wrapped) {
+		if ($soapfault) {
+			$this->lastFault = $soapfault;
+			throw $soapfault;
+		}
+		
+		if (SOAP_RPC === $this->config->wsdl_binding_style || null === $this->config->returnWrapper) {
 			return $return;
 		}
 		
-		$result = $name . 'Result';
+		$result = $name . $this->config->returnWrapper;
 		$response = new stdClass();
 		$response->$result = $return;
 		

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope">
+  <env:Body>
+    <env:Fault>
+      <env:Code>
+        <env:Value>codevalue</env:Value>
+        <env:Subcode>
+          <env:Value>subcodevalue</env:Value>
+        </env:Subcode>
+      </env:Code>
+      <env:Reason>
+        <env:Text xml:lang="en">reasontext</env:Text>
+      </env:Reason>
+      <env:Node>node</env:Node>
+      <env:Role>role</env:Role>
+      <env:Detail>
+        <item>
+          <key>key</key>
+          <value>value</value>
+        </item>
+      </env:Detail>
+    </env:Fault>
+  </env:Body>
+</env:Envelope>

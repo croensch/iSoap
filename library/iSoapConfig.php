@@ -25,7 +25,7 @@ class iSoapConfig
 	public $wsdl_body_use = SOAP_LITERAL;
 
 	/**
-	 * @var boolean
+	 * @var string
 	 */
-	public $wrapped = true;
+	public $returnWrapper = 'Result';
 }

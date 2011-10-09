@@ -12,7 +12,7 @@ class TryoutService
 	/**
 	 * @param string $text
 	 */
-	public function __construct($text)
+	public function __construct($text = "")
 	{
 		$this->text = $text;
 	}
@@ -44,11 +44,11 @@ class TryoutService
 	/**
 	 * Crash
 	 * 
-	 * @throws SoapFault
+	 * @throws iSoapFault
 	 */
 	public function throwFault()
 	{
-		throw new SoapFault('faultcode', 'faultstring', 'faultactor', 'detail', 'faultname', 'headerfault');
+		throw new iSoapFault('codevalue', 'reasontext', 'node', 'role', array('key' => 'value'), 'subcodevalue', 'en');
 	}
 	
 	/**

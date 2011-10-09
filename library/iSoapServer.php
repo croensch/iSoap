@@ -18,13 +18,15 @@ class iSoapServer extends SoapServer
 	 * @see SoapServer::SoapServer()
 	 * 
 	 * default options
-	 *  - soap_version			SOAP_1_1 or SOAP_1_2 (default)
-	 *  - send_errors			integer (0 recommended)
+	 *  - soap_version			integer (default: SOAP_1_2, or: SOAP_1_1)
+	 *  - send_errors			integer (default: 0, recommended)
 	 * 
 	 * extended options
-	 *  - wsdl_binding_style	SOAP_RPC or SOAP_DOCUMENT (default)
-	 *  - wsdl_body_use			SOAP_ENCODED or SOAP_LITERAL (default)
-	 *  - wrapped				boolean (true recommended)
+	 *  - wsdl_binding_style	integer (default: SOAP_DOCUMENT, or: SOAP_RPC)
+	 *  - wsdl_body_use			integer (default: SOAP_LITERAL, or: SOAP_ENCODED)
+	 * 
+	 * experimental options:
+	 *  - returnWrapper			string (default: "Response", recommended)
 	 * 
 	 * @param string $wsdl
 	 * @param array $options
@@ -55,9 +57,9 @@ class iSoapServer extends SoapServer
 			unset($options['wsdl_body_use']);
 		}
 		
-		if (isset($options['wrapped'])) {
-			$this->_config->wrapped = $options['wrapped'];
-			unset($options['wrapped']);
+		if (isset($options['returnWrapper'])) {
+			$this->_config->returnWrapper = $options['returnWrapper'];
+			unset($options['returnWrapper']);
 		}
 		
 		$this->_service = new iSoapService($this->_config);
@@ -91,6 +93,31 @@ class iSoapServer extends SoapServer
 	}
 	
 	/**
+	 * @see SoapServer::handle()
+	 * 
+	 * @param string $soap_request
+	 */
+	public function handle($soap_request = null)
+	{
+		if (null === $soap_request) {
+			$soap_request = file_get_contents('php://input');
+		}
+		
+		if (SOAP_1_2 === $this->_config->soap_version) {
+			ob_start();
+			parent::handle($soap_request);
+			$soap_response = ob_get_clean();
+			if ($this->_service->lastFault instanceof iSoapFault) {
+				$this->_service->lastFault->fixSoap12($soap_response);
+				header('Content-Length: '.strlen($soap_response));
+			}
+			echo $soap_response;
+		} else {
+			parent::handle($soap_request);
+		}
+	}
+	
+	/**
 	 * @see SoapServer::fault()
 	 * 
 	 * @param string $code
@@ -98,12 +125,15 @@ class iSoapServer extends SoapServer
 	 * @param string $actor
 	 * @param string $details
 	 * @param string $name
+	 * 
+	 * @deprecated
 	 */
 	public function fault($code, $string, $actor = null, $details = null, $name = null)
 	{
-		/**
-		 * @todo improve SOAP_1_2
-		 */
+		if( SOAP_1_2 === $this->_config->soap_version ){
+			trigger_error(__METHOD__."(): Is not compatible with SOAP 1.2", E_USER_DEPRECATED);
+		}
+		
 		parent::fault($code, $string, $actor, $details, $name);
 	}
 	

@@ -13,7 +13,7 @@ class iSoapServerTest extends PHPUnit_Framework_TestCase
 	public function setUp()
 	{
 		parent::setUp();
-		$this->server = new iSoapServer(__DIR__.'/_files/TryoutService.wsdl', array('send_errors' => 1));
+		$this->server = new iSoapServer(__DIR__.'/_files/TryoutService.wsdl', array('send_errors' => 0));
 	}
 	
 	public function tearDown()
@@ -26,7 +26,13 @@ class iSoapServerTest extends PHPUnit_Framework_TestCase
 	
 	public function testConstruct()
 	{
-		$this->markTestIncomplete('todo: test rpc-encoded');
+		$this->server = new iSoapServer(__DIR__.'/_files/TryoutService.wsdl', array(
+			'soap_version' => SOAP_1_1,
+			'wsdl_binding_style' => SOAP_RPC,
+			'wsdl_body_use' => SOAP_ENCODED
+		));
+		
+		// @todo improve code coverage
 	}
 	
 	public function testAddFunction()
@@ -47,9 +53,16 @@ class iSoapServerTest extends PHPUnit_Framework_TestCase
 		$this->server->addFunction('bogus');
 	}
 	
-	public function testFault()
+	public function testThrowFault()
 	{
-		$this->markTestIncomplete();
+		$this->server->setClass('TryoutService');
+		$this->serve('throwFault');
+	}
+	
+	public function testThrowException()
+	{
+		$this->server->setClass('TryoutService');
+		$this->serve('throwException');
 	}
 	
 	public function testGetFunctions()
@@ -66,22 +79,27 @@ class iSoapServerTest extends PHPUnit_Framework_TestCase
 	{
 		$class = 'TryoutService';
 		$methods = get_class_methods($class);
-		$this->server->setClass($class, array(''));
+		$this->server->setClass($class);
 		$this->assertEquals($methods, $this->server->getFunctions());
 	}
 	
 	public function testGetFunctionsObject()
 	{
-		$object = new TryoutService('');
+		$object = new TryoutService();
 		$methods = get_class_methods($object);
 		$this->server->setObject($object);
 		$this->assertEquals($methods, $this->server->getFunctions());
 	}
 	
-	public function testSetClass()
+	public function testSetClassWithArguments()
 	{
 		$this->server->setClass('TryoutService', array('Hello'));
 		$this->serve('hello');
+	}
+	
+	public function testSetClassWithoutArguments()
+	{		
+		$this->server->setClass('TryoutService');
 		$this->serve('abc');
 	}
 		
@@ -117,6 +135,6 @@ class iSoapServerTest extends PHPUnit_Framework_TestCase
 		
 		@$this->server->handle(file_get_contents(__DIR__."/_files/$handle.xml"));
 		
-		$this->assertXmlStringEqualsXmlFile(__DIR__."/_files/$handleResponse.xml",	ob_get_clean());
+		$this->assertXmlStringEqualsXmlFile(__DIR__."/_files/$handleResponse.xml", ob_get_clean());
 	}
 }
