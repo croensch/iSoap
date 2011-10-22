@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="Sebastian">
- <description>Sebastian Bergmann's coding standard</description>
+<ruleset name="iSoap">
+ <description>Project coding standard</description>
 
  <rule ref="Generic.CodeAnalysis.ForLoopShouldBeWhileLoop"/>
  <rule ref="Generic.CodeAnalysis.ForLoopWithTestFunctionCall"/>
@@ -13,12 +13,17 @@
 
  <rule ref="Generic.ControlStructures.InlineControlStructure"/>
 
- <rule ref="Generic.Files.LineEndings"/>
+ <!--rule ref="Generic.Files.LineEndings"/-->
+
+ <rule ref="Zend.Files.ClosingTag"/>
 
  <rule ref="Generic.Formatting.DisallowMultipleStatements"/>
- <rule ref="Generic.Formatting.MultipleStatementAlignment"/>
- <rule ref="Generic.Formatting.NoSpaceAfterCast"/>
+ <!--rule ref="Generic.Formatting.MultipleStatementAlignment"/-->
+ <!--rule ref="Generic.Formatting.NoSpaceAfterCast"/-->
+ <rule ref="Generic.Formatting.SpaceAfterCast"/>
 
+ <rule ref="Generic.Functions.CallTimePassByReference"/>
+ <rule ref="Generic.Functions.FunctionCallArgumentSpacing"/>
  <rule ref="Generic.Functions.OpeningFunctionBraceBsdAllman"/>
  <rule ref="PEAR.Functions.ValidDefaultValue"/>
 
@@ -26,11 +31,11 @@
  <rule ref="Generic.NamingConventions.UpperCaseConstantName"/>
  <rule ref="PEAR.NamingConventions.ValidClassName"/>
 
- <rule ref="Generic.PHP.DisallowShortOpenTag"/>
+ <rule ref="Generic.PHP.DeprecatedFunctions"/>
  <rule ref="Generic.PHP.NoSilencedErrors"/>
  <rule ref="Generic.PHP.UpperCaseConstant"/>
 
- <rule ref="Generic.WhiteSpace.DisallowTabIndent"/>
+ <!--rule ref="Generic.WhiteSpace.DisallowTabIndent"/-->
  <rule ref="Generic.WhiteSpace.ScopeIndent"/>
  <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace"/>
 </ruleset>
