@@ -29,13 +29,11 @@
 
  <rule ref="Generic.NamingConventions.ConstructorName"/>
  <rule ref="Generic.NamingConventions.UpperCaseConstantName"/>
- <rule ref="PEAR.NamingConventions.ValidClassName"/>
-
+ 
  <rule ref="Generic.PHP.DeprecatedFunctions"/>
  <rule ref="Generic.PHP.NoSilencedErrors"/>
  <rule ref="Generic.PHP.UpperCaseConstant"/>
 
  <!--rule ref="Generic.WhiteSpace.DisallowTabIndent"/-->
- <rule ref="Generic.WhiteSpace.ScopeIndent"/>
  <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace"/>
 </ruleset>
