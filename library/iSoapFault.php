@@ -3,27 +3,27 @@
  * @todo implement subcode
  */
 class iSoapFault extends SoapFault
-{	
+{
 	/**
 	 * @var mixed
 	 */
 	public $subcodevalue;
-	
+
 	/**
 	 * @var string
 	 */
 	public $node;
-	
+
 	/**
 	 * @var string
 	 */
 	public $role;
-	
+
 	/**
 	 * @var string
 	 */
 	public $language;
-	
+
 	/**
 	 * @see SoapFault::SoapFault()
 	 * 
@@ -38,15 +38,15 @@ class iSoapFault extends SoapFault
 	public function __construct($codevalue, $reasontext, $node = null, $role = null, $detail = null, $subcodevalue = null, $language = 'x-unknown')
 	{
 		parent::__construct($codevalue, $reasontext, null, $detail);
-		
+
 		$this->subcodevalue = $subcodevalue;
-		
+
 		$this->node = $node;
 		$this->role = $role;
-		
+
 		$this->language = $language;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -54,7 +54,7 @@ class iSoapFault extends SoapFault
 	{
 		return $this->faultcode;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -62,7 +62,7 @@ class iSoapFault extends SoapFault
 	{
 		return $this->faultstring;
 	}
-	
+
 	/**
 	 * @param string $xml
 	 */
@@ -70,9 +70,9 @@ class iSoapFault extends SoapFault
 	{
 		$document = new DOMDocument();
 		$document->loadXML($xml);
-		
+
 		$nsURI	= 'http://www.w3.org/2003/05/soap-envelope';
-		
+
 		if ($this->subcodevalue) {
 			$code = $document->getElementsByTagNameNs($nsURI, "Code")->item(0);
 			$subcode = $document->createElementNS($nsURI, 'Subcode');
@@ -81,10 +81,10 @@ class iSoapFault extends SoapFault
 			$subcode->appendChild($value);
 			$code->appendChild($subcode);
 		}
-		
+
 		$text = $document->getElementsByTagNameNS($nsURI, "Text")->item(0);
 		$text->setAttributeNS('http://www.w3.org/XML/1998/namespace', 'xml:lang', $this->language);
-		
+
 		if ($this->node || $this->role) {
 			$fault = $document->getElementsByTagNameNS($nsURI, "Fault")->item(0);
 			$detail = $document->getElementsByTagNameNS($nsURI, "Detail")->item(0);
@@ -105,7 +105,7 @@ class iSoapFault extends SoapFault
 				$fault->appendChild($detail);
 			}
 		}
-		
+
 		$xml = $document->saveXML();
 	}
 }

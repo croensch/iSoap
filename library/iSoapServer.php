@@ -3,17 +3,23 @@
  * improved SoapServer
  */
 class iSoapServer extends SoapServer
-{	
+{
 	/**
-	 * @var iSoapConfig
+	 * @var array
 	 */
-	protected $_config;
-	
+	protected $_options = array(
+		'soap_version' => SOAP_1_2,
+		'send_errors' => 0,
+		'wsdl_binding_style' => SOAP_DOCUMENT,
+		'wsdl_body_use' => SOAP_LITERAL,
+		'returnWrapper' => 'Result'
+	);
+
 	/**
 	 * @var iSoapService
 	 */
 	protected $_service;
-	
+
 	/**
 	 * @see SoapServer::SoapServer()
 	 * 
@@ -32,43 +38,41 @@ class iSoapServer extends SoapServer
 	 * @param array $options
 	 */
 	public function __construct($wsdl = null, array $options = array())
-	{		
-		$this->_config 	= new iSoapConfig;
-		
+	{
 		if (isset($options['soap_version'])){
-			$this->_config->soap_version = $options['soap_version'];
+			$this->_options['soap_version'] = $options['soap_version'];
 		} else {
-			$options['soap_version'] = $this->_config->soap_version;
+			$options['soap_version'] = $this->_options['soap_version'];
 		}
-		
+
 		if (isset($options['send_errors'])){
-			$this->_config->send_errors = $options['send_errors'];
+			$this->_options['send_errors'] = $options['send_errors'];
 		} else {
-			$options['send_errors'] = $this->_config->send_errors;
+			$options['send_errors'] = $this->_options['send_errors'];
 		}
 
 		if (isset($options['wsdl_binding_style'])) {
-			$this->_config->wsdl_binding_style = $options['wsdl_binding_style'];
+			$this->_options['wsdl_binding_style'] = $options['wsdl_binding_style'];
 			unset($options['wsdl_binding_style']);
 		}
 
 		if (isset($options['wsdl_body_use'])) {
-			$this->_config->wsdl_body_use = $options['wsdl_body_use'];
+			$this->_options['wsdl_body_use'] = $options['wsdl_body_use'];
 			unset($options['wsdl_body_use']);
 		}
-		
+
 		if (isset($options['returnWrapper'])) {
-			$this->_config->returnWrapper = $options['returnWrapper'];
+			$this->_options['returnWrapper'] = $options['returnWrapper'];
 			unset($options['returnWrapper']);
 		}
-		
-		$this->_service = new iSoapService($this->_config);
-				
+
+		$this->_service = new iSoapService($this->_options);
+
 		parent::__construct($wsdl, $options);	
-		
+
 		parent::setObject($this->_service);
 	}
-	
+
 	/**
 	 * @see SoapServer::addFunction()
 	 * 
@@ -81,7 +85,7 @@ class iSoapServer extends SoapServer
 				$this->addFunction($function);
 			}
 		}
-		
+
 		if (is_string($functions)) {
 			if (function_exists($functions)) {
 				$this->_service->functions[] = $functions;
@@ -91,7 +95,7 @@ class iSoapServer extends SoapServer
 			}
 		}
 	}
-	
+
 	/**
 	 * @see SoapServer::handle()
 	 * 
@@ -102,8 +106,8 @@ class iSoapServer extends SoapServer
 		if (null === $soap_request) {
 			$soap_request = file_get_contents('php://input');
 		}
-		
-		if (SOAP_1_2 === $this->_config->soap_version) {
+
+		if (SOAP_1_2 === $this->_options['soap_version']) {
 			ob_start();
 			parent::handle($soap_request);
 			$soap_response = ob_get_clean();
@@ -116,7 +120,7 @@ class iSoapServer extends SoapServer
 			parent::handle($soap_request);
 		}
 	}
-	
+
 	/**
 	 * @see SoapServer::fault()
 	 * 
@@ -130,13 +134,13 @@ class iSoapServer extends SoapServer
 	 */
 	public function fault($code, $string, $actor = null, $details = null, $name = null)
 	{
-		if( SOAP_1_2 === $this->_config->soap_version ){
+		if( SOAP_1_2 === $this->_options['soap_version'] ){
 			trigger_error(__METHOD__."(): Is not compatible with SOAP 1.2", E_USER_DEPRECATED);
 		}
-		
+
 		parent::fault($code, $string, $actor, $details, $name);
 	}
-	
+
 	/**
 	 * @see SoapServer::getFunctions()
 	 * 
@@ -147,18 +151,18 @@ class iSoapServer extends SoapServer
 		if (iSoapService::TYPE_FUNCTIONS === $this->_service->type) {
 			return $this->_service->functions;
 		}
-		
+
 		if (iSoapService::TYPE_CLASS === $this->_service->type) {
 			return get_class_methods($this->_service->class_name);
 		}
-		
+
 		if (iSoapService::TYPE_OBJECT === $this->_service->type) {
 			return get_class_methods($this->_service->object);
 		}
-		
+
 		return array();
 	}
-	
+
 	/**
 	 * @see SoapServer::setClass()
 	 * 
@@ -177,7 +181,7 @@ class iSoapServer extends SoapServer
 			}
 		}
 	}
-	
+
 	/**
 	 * @see SoapServer::setObject()
 	 * 
